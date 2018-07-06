@@ -1,0 +1,47 @@
+  find *Bid.csv -print | zip DNB_Bid_Data_cleaned.zip -@
+source activate my_root
+bzip2 -d NYSE_201004_data_51.csv.bz2
+
+
+
+scp (secure copy):
+
+scp [source file] [username]@[destination server]:.
+
+gitbash: scp aba228@rotterdam.labs.vu.nl:~/Documents/DNB_Data/DNB_Data_cleaned.zip C:/Users/ancal/Desktop
+gitbash: scp aba228@rotterdam.labs.vu.nl:~/Documents/DNB_Data/DNB_Bid_Data_cleaned.zip C:/Users/ancal/Desktop
+
+
+scp aba228@rotterdam.labs.vu.nl:~/Documents/DNB_Data/DNB_Data_Oct.zip /c/Users/aba228/Dropbox/New Projects/Integer/Codes/Data
+
+
+
+scp NYSE_200810_data_41.csv.bz2 aba228@rotterdam.labs.vu.nl:.
+
+
+mv NYSE_200810_data_41.csv.bz2 
+ 
+mv Data_2008103_9_KO_Bid_1.csv Data_2008103_9_KO1_Bid.csv
+
+
+
+scp aba228@rotterdam.labs.vu.nl:~/Documents/DNB_Data/Data_20100423_29_KO_Bid.csv /c/Users/aba228/Dropbox/New Projects/Integer/Codes/Data
+
+scp aba228@rotterdam.labs.vu.nl:~/Documents/DNB_Data/DataFull_2008103_10_IBM_Bid.csv /c/Users/aba228/Dropbox/New Projects/Integer/Codes/Data
+
+H:/Desktop/DNB_empirical_plots
+
+scp aba228@rotterdam.labs.vu.nl:~/Documents/DNB_Data/Data_2008103_9_KO_Bid.csv C/Users/ancal/Dropbox/New Projects/Integer/Codes/Data
+
+
+ls | wc -l <--- count the number of files
+
+
+find *.mat -print | zip DFMSV2_Variance_Simulations.zip -@
+
+find *.mat -print | zip FAVARSV_Variance_Simulations.zip -@
+
+scp aba228@rotterdam.labs.vu.nl:~/Documents/DFMSV2_Variance/DFMSV2_Variance_Simulations.zip c:/Users/ancal/Desktop
+scp aba228@rotterdam.labs.vu.nl:~/Documents/FAVARSV/FAVARSV_Variance_Simulations.zip c:/Users/ancal/Desktop
+
+scp aba228@rotterdam.labs.vu.nl:~/Documents/BKM/BKM*.mat c:/Users/ancal/Desktop

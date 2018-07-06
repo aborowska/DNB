@@ -109,7 +109,6 @@ void CreatPrefix(string sInput,string sType, string *sPrefix )
 	  i+=1;
 	}
 
-
 	cout<<sSplit[1].substr(0,4)+"_"+sSplit[3].substr(0,sSplit[3].find(".")) + "_"+sType+"_" <<endl;
 	sPrefix[0]=sSplit[1].substr(0,4)+"_"+sSplit[3].substr(0,sSplit[3].find("."))+"_"+sType+"_";
 	cout<<sPrefix[0]<<endl;
@@ -168,7 +167,6 @@ void WriteOutIntArray(int * mData,  int iRows, int iCols, string  sFile )
 		}
 	}
 	ofsData.close();
-
 }
 
 /*
@@ -181,16 +179,13 @@ void WriteOutIntArray(int * mData,  int iRows, int iCols, string  sFile )
  */
 double ZeroSkellamPdf(const int iX, const double dGamma, const double dLambda){
 
-
 	double dPdf;
 	double d2Lambda;
 	d2Lambda=2*dLambda;
 	if(iX==0)
 	{
-
 //		dPdf= dGamma + (1-dGamma)*exp(-d2Lambda)*gsl_sf_bessel_In(0, d2Lambda );
 		dPdf= dGamma + (1-dGamma)*gsl_sf_bessel_In_scaled(0, d2Lambda );
-
 	}
 	else
 	{
@@ -200,7 +195,6 @@ double ZeroSkellamPdf(const int iX, const double dGamma, const double dLambda){
 //		dPdf=(1-dGamma)*exp(-d2Lambda)*gsl_sf_bessel_In(iAbsX,  d2Lambda);
 		dPdf=(1-dGamma)*gsl_sf_bessel_In_scaled(iAbsX,  d2Lambda);
 	}
-
 
 	return dPdf;
 }
@@ -248,6 +242,51 @@ void SimulateSeasonal( int iNumOfSimPerDay, int iNumOfDays, double* vTimes, doub
 	delete dDailyAvgSeason;
 }
 
+
+void SimulateSeasonal_str(string sType, int iNumOfSimPerDay, int iNumOfDays, double* vTimes, double * vSeason)
+{
+	string sPrefix;
+	string sInput;
+	CreatPrefix(sInput,sType, &sPrefix );
+		
+	int iTimeInSec=23400;
+	double dDuration=(double)iTimeInSec/iNumOfSimPerDay;
+
+	double *vUnnormalizedSeason=new double[iNumOfSimPerDay*iNumOfDays];
+	double *dDailyAvgSeason=new double;
+
+	/* Unnormalized sesonal pattern */
+	for(int d=0; d<iNumOfDays; d++)
+	{
+		dDailyAvgSeason[0]=0;
+		for(int i=0; i<iNumOfSimPerDay; i++)
+		{
+			vTimes[i+d*iNumOfSimPerDay]=(i+1)*dDuration;
+			vUnnormalizedSeason[i+d*iNumOfSimPerDay]=(vTimes[i]-10800)*(vTimes[i]-10800)/(58320000);
+			dDailyAvgSeason[0]=dDailyAvgSeason[0]+vUnnormalizedSeason[i];
+		}
+
+		dDailyAvgSeason[0]=dDailyAvgSeason[0]/iNumOfSimPerDay;
+
+		/* Zero mean normalized seasonal pattern */
+		for(int i=0; i<iNumOfSimPerDay; i++)
+		{
+			vSeason[i+d*iNumOfSimPerDay]=vUnnormalizedSeason[i+d*iNumOfSimPerDay]-dDailyAvgSeason[0];
+//			vSeason[i+d*iNumOfSimPerDay]=0;
+		}
+	}
+
+
+	/* Saving results */
+	string sSeasonFile=(sPrefix+"vSeason.csv").c_str();
+	WriteOutDoubleArray(vSeason, iNumOfSimPerDay*iNumOfDays, 1, sSeasonFile);
+
+	string sTimeFile=(sPrefix+"vTime.csv").c_str();
+	WriteOutDoubleArray(vTimes, iNumOfSimPerDay*iNumOfDays, 1, sTimeFile);
+
+	delete [] vUnnormalizedSeason;
+	delete dDailyAvgSeason;
+}
 
 void SimulateSeasonal2( int iNumOfSim, double* vTimes, double * vSeason)
 {
@@ -313,10 +352,8 @@ void SimulateSkellam(double dLambda, const gsl_rng * gsl_random_num, int*  iY, i
 	int iNPrevTemp=0;
 	int iYPrevTemp=0;
 
-
 	while(dTau < 1)
 	{
-
 		iNPrevTemp=iNTemp;
 		iYPrevTemp=iYTemp;
 		dTauPrev=dTau;
@@ -332,7 +369,6 @@ void SimulateSkellam(double dLambda, const gsl_rng * gsl_random_num, int*  iY, i
 		{
 			iYTemp=iYTemp-1;
 		}
-
 	}
 
 	iN[0]=iNPrevTemp;
@@ -340,7 +376,6 @@ void SimulateSkellam(double dLambda, const gsl_rng * gsl_random_num, int*  iY, i
 	dTau1[0]=dTau-dTauPrev;
 	dTau2[0]=dTauPrev;
 	cout <<"while end"<< endl;
-
 }
 
 double CalcVol(double* vData, int iCurrent ,int iWindow)
@@ -352,8 +387,6 @@ double CalcVol(double* vData, int iCurrent ,int iWindow)
 		dS=dS+vData[iCurrent-i];
 		dSS=dSS+vData[iCurrent-i]*vData[iCurrent-i] ;
 	}
-
-
 
 	return dSS/iWindow-(dS*dS)/(iWindow*iWindow);
 }
@@ -393,12 +426,9 @@ void CalculateInitialState(struct AllParam sParam, double * vInitialLogVol, int 
 
 	}
 
-
 	//int iTempCount=0;
 	for(int i=0; i<iNumOfObs; i++)
 	{
-
-
 
 //			cout << "dMeanLogInt "<<dMeanLogInt << endl;
 			dY[0]=vInitialLogVol[i]-dMeanLogInt;
@@ -414,8 +444,6 @@ void CalculateInitialState(struct AllParam sParam, double * vInitialLogVol, int 
 
 
 	}
-
-
 
 
 	/* Variance */
@@ -507,13 +535,12 @@ double LogModifiedBesselFirstKindLargeX(int iN, double dX)
 void CaculateSkellam(const double * vData,  int iNumOfObs,  struct AllParam sParam, double * vZeroSkellamDens,
 		double * vIndicator,double * vSkellam,  double * vLogBessel  )
 {
-
 	double* dLambda=new double;
 
 	for(int i=0; i<iNumOfObs; i++)
 	{
 		dLambda[0]=exp(sParam.dMu[0]+sParam.vS[i]+sParam.vX[i]);
-
+		
 //		cout << "Skellam " << i << endl;
 //		cout << "iAbsX " << abs(vData[i])<< endl;
 //		cout << "-2*dLambda[0] " << -2*dLambda[0]<< endl;
@@ -537,7 +564,6 @@ void CaculateSkellam(const double * vData,  int iNumOfObs,  struct AllParam sPar
 			{
 				result.val=exp(log(-2*dLambda[0])+abs(vData[i]) * log(dLambda[0])-lgamma(abs(vData[i])+1));
 			}
-
 		}
 
 		if(1e-50>2*dLambda[0])
@@ -570,7 +596,6 @@ void CaculateSkellam(const double * vData,  int iNumOfObs,  struct AllParam sPar
 		}
 		else
 		{
-
 			if(result.val==0)
 			{
 				vLogBessel[i]=-100;
@@ -579,10 +604,8 @@ void CaculateSkellam(const double * vData,  int iNumOfObs,  struct AllParam sPar
 				vLogBessel[i]=log(result.val);
 			}
 		}
-
 		vZeroSkellamDens[i]=sParam.dGamma[0]*vIndicator[i]+(1-sParam.dGamma[0])*vSkellam[i] ;
 	}
-
 	delete dLambda;
 }
 
@@ -601,7 +624,6 @@ double ZeroDNBPdf(const int iX, const double dGamma, const double dLambda, const
 		double dLambdaRatio=dLambda/(dLambda+dNu);
 		double dNuRatio=dNu/(dLambda+dNu);
 
-
 		if(iX==0)
 		{
 			dPdf= dGamma + (1-dGamma)*pow(dNuRatio,2*dNu)*gsl_sf_hyperg_2F1(dNu,dNu, 1 , pow(dLambdaRatio,2));
@@ -612,28 +634,26 @@ double ZeroDNBPdf(const int iX, const double dGamma, const double dLambda, const
 			iAbsX=abs(iX);
 			dPdf=(1-dGamma)*pow(dNuRatio,2*dNu)*pow(dLambdaRatio,iAbsX)*(gsl_sf_gamma(dNu+iAbsX)/(gsl_sf_gamma(iAbsX+1)*gsl_sf_gamma(dNu)))*gsl_sf_hyperg_2F1(dNu+iAbsX,dNu, iAbsX+1 , pow(dLambdaRatio,2) );
 		}
-
-
 		return dPdf;
 }
 
 int MixtureLogGamma( double n,  int * iNumOfComp,  double * vWeights , double * vMeans ,double *vVariances)
 {
-         /*
-          * This routine was initially written by Rudolf Fruehwirth (Institut fuer Hochenergiephysik Oesterreichische Akademie der
-          * Wissenschaften, Nikolsdorfer Gasse 18, 1050 Wien), and later adapted to GMRFLib by H.Rue
-          *
-          * This routine approximate the log-gamma distribution, with density
-          *
-          * exp(-n*x - exp(-x)) / Gamma(n)
-          *
-          * by a mixture of normals
-          *
-          * \sum_{i=1}^N weights[i] * N(x; means[i], variances[i])
-          *
-          * with N components.
-          *
-          */
+	 /*
+	  * This routine was initially written by Rudolf Fruehwirth (Institut fuer Hochenergiephysik Oesterreichische Akademie der
+	  * Wissenschaften, Nikolsdorfer Gasse 18, 1050 Wien), and later adapted to GMRFLib by H.Rue
+	  *
+	  * This routine approximate the log-gamma distribution, with density
+	  *
+	  * exp(-n*x - exp(-x)) / Gamma(n)
+	  *
+	  * by a mixture of normals
+	  *
+	  * \sum_{i=1}^N weights[i] * N(x; means[i], variances[i])
+	  *
+	  * with N components.
+	  *
+	  */
 
       const int nrange = 7;
       const int range[7][2] = {
@@ -1375,14 +1395,20 @@ void DrawGammaAdaptiveRW(  int iNumOfObs, int iNumOfIter, const gsl_rng * gsl_ra
 		dCovar[0]=(iNumOfIter-1)*pow(dSigma,2)/iNumOfIter+dSum[0]*dSum[0]/(iNumOfIter*iNumOfIter)+pow(LogitTransform(sParam.dGamma[0]),2)/iNumOfIter;
 		dSum[0]=dSum[0]+LogitTransform(sParam.dGamma[0]);
 		dCovar[0]=dCovar[0]-dSum[0]*dSum[0]/(iNumOfIter*(iNumOfIter+1));
-
-
 	}
 	else
 	{
-		dCovar[0]=(iNumOfIter-1)*dCovar[0]/iNumOfIter+dSum[0]*dSum[0]/(iNumOfIter*iNumOfIter)+pow(LogitTransform(sParam.dGamma[0]),2)/iNumOfIter;
+/* 	dCovar[0]=(iNumOfIter-1)*dCovar[0]/iNumOfIter+dSum[0]*dSum[0]/(iNumOfIter*iNumOfIter)+pow(LogitTransform(sParam.dGamma[0]),2)/iNumOfIter;
 		dSum[0]=dSum[0]+LogitTransform(sParam.dGamma[0]);
-		dCovar[0]=dCovar[0]-dSum[0]*dSum[0]/(iNumOfIter*(iNumOfIter+1));
+		dCovar[0]=dCovar[0]-dSum[0]*dSum[0]/(iNumOfIter*(iNumOfIter+1)); */
+/*		dCovar[0]=(iNumOfIter-1)*dCovar[0]/iNumOfIter+(dSum[0]/iNumOfIter)*(dSum[0]/iNumOfIter)+pow(LogitTransform(sParam.dGamma[0]),2)/iNumOfIter;
+		dSum[0]=dSum[0]+LogitTransform(sParam.dGamma[0]);
+		dCovar[0]=dCovar[0]-(dSum[0]/iNumOfIter)*(dSum[0]/(iNumOfIter+1)); */
+		
+		double dSum_old = dSum[0];
+		dSum[0]=dSum[0]+LogitTransform(sParam.dGamma[0]);
+		dCovar[0] = dCovar[0] + (LogitTransform(sParam.dGamma[0]) - dSum_old/iNumOfIter)*(LogitTransform(sParam.dGamma[0]) - dSum[0]/(iNumOfIter+1));
+ 		dCovar[0] = dCovar[0]/iNumOfIter;		
 	}
 
 //	cout << "dSum " << dSum[0]<< endl;
@@ -4361,7 +4387,9 @@ void DrawN( struct AllParam sParam, double * vData,  int iNumOfObs , const gsl_r
 	int* iTempN = new int;
 	int* iNextBinom=new int;
 	double* dU=new double;
-
+	
+	int MaxiTempN;
+	MaxiTempN = 1000;
 //	cout << " sParam.dMu[0] "<<  sParam.dMu[0]<< endl;
 
 
@@ -4403,7 +4431,10 @@ void DrawN( struct AllParam sParam, double * vData,  int iNumOfObs , const gsl_r
 		dU[0]=gsl_rng_uniform(gsl_random_num);
 
 //		cout << "CumU " << dCumU[0] << " dU "<< dU[0]<< endl;
-		while(dCumU[0]<dU[0])
+
+		// while(dCumU[0]<dU[0])
+		while ((dCumU[0]<dU[0]) & (iTempN[0] < MaxiTempN))			
+			
 		{
 			/*New N */
 			iTempN[0]=iTempN[0]+1;
@@ -4483,7 +4514,7 @@ void DrawN( struct AllParam sParam, double * vData,  int iNumOfObs , const gsl_r
 
 
 
-//		cout<< "sParam.vN[i] "<<sParam.vN[i]<<endl;
+		// cout<< "sParam.vN[i] "<<sParam.vN[i]<<endl;
 //		cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXX "<< endl;
 	}
 
@@ -5199,6 +5230,8 @@ void DrawNDNB( struct AllParam sParam, double * vData,  int iNumOfObs , const gs
 	 int* iNextBinom=new int;
 	double* dU=new double;
 
+	int MaxiTempN;
+	MaxiTempN = 1000;
 //	cout << " sParam.dMu[0] "<<  sParam.dMu[0]<< endl;
 
 	for(int i=0; i<iNumOfObs; i++)
@@ -5232,9 +5265,11 @@ void DrawNDNB( struct AllParam sParam, double * vData,  int iNumOfObs , const gs
 
 		iNextBinom[0]=iTempN[0]+2;
 		dU[0]=gsl_rng_uniform(gsl_random_num);
-
-//		cout << "CumU " << dCumU[0] << " dU "<< dU[0]<< endl;
-		while(dCumU[0]<dU[0])
+		
+		 
+		// cout << "CumU " << dCumU[0] << " dU "<< dU[0]<< endl;
+		// while(dCumU[0]<dU[0])
+		while ((dCumU[0]<dU[0]) & (iTempN[0] < MaxiTempN))			
 //		while(dCumU[0]<1)
 		{
 			/*New N */
@@ -5280,6 +5315,7 @@ void DrawNDNB( struct AllParam sParam, double * vData,  int iNumOfObs , const gs
 		}
 
 		sParam.vN[i]=iTempN[0];
+		// cout<< "sParam.vN["<< i <<"] "<<sParam.vN[i]<<endl;
 //		cout<<"XXXXXXXXXXXXXXXXXXXXXXXXXXx"<<endl;
 		if(!isthisfinite( sParam.vN[i]))
 		{
@@ -5482,6 +5518,9 @@ void DrawAuxYandAuxHDNB(struct AllParam sParam, int iNumOfObs , const gsl_rng * 
 		{
 			/* Mixture approximation for tau2 */
 			MixtureLogGamma( sParam.vN[k], &iNumOfComp,  vWeights , vMeans ,vVariances);
+			// cout<< "vN at "<<k<<" is " << sParam.vN[k] <<endl;
+			// cout<< "iNumOfComp at "<<k<<" is " << iNumOfComp <<endl;
+
 			/* Draw indicator form the mixture approximation for tau2*/
 //			for(int i=0 ; i<10; i++)
 //			{
@@ -5690,15 +5729,8 @@ void DrawGammaAdaptiveRWDNB(  int iNumOfObs,  int iNumOfIter, const gsl_rng * gs
 
 	if((dLogU<=dAccept) & (isthisfinite(LogitTransformBack(dNewGammaLogit))) )
 	{
-
-
-
-
 		sParam.dGamma[0]=LogitTransformBack(dNewGammaLogit);
-
-
 	}
-
 
 
 	/* Covariance */
@@ -5706,27 +5738,25 @@ void DrawGammaAdaptiveRWDNB(  int iNumOfObs,  int iNumOfIter, const gsl_rng * gs
 	{
 		dCovar[0]=dCovar[0]+pow(LogitTransform(sParam.dGamma[0]),2);
 		dSum[0]=dSum[0]+LogitTransform(sParam.dGamma[0]);
-
 	}
 	else if(iNumOfIter==2)
 	{
 		dCovar[0]=(iNumOfIter-1)*pow(dSigma,2)/iNumOfIter+dSum[0]*dSum[0]/(iNumOfIter*iNumOfIter)+pow(LogitTransform(sParam.dGamma[0]),2)/iNumOfIter;
 		dSum[0]=dSum[0]+LogitTransform(sParam.dGamma[0]);
 		dCovar[0]=dCovar[0]-dSum[0]*dSum[0]/(iNumOfIter*(iNumOfIter+1));
-
-
 	}
 	else
 	{
-		dCovar[0]=(iNumOfIter-1)*dCovar[0]/iNumOfIter+dSum[0]*dSum[0]/(iNumOfIter*iNumOfIter)+pow(LogitTransform(sParam.dGamma[0]),2)/iNumOfIter;
+		dCovar[0]=(iNumOfIter-1)*dCovar[0]/iNumOfIter+(dSum[0]/iNumOfIter)*(dSum[0]/iNumOfIter)+pow(LogitTransform(sParam.dGamma[0]),2)/iNumOfIter;
 		dSum[0]=dSum[0]+LogitTransform(sParam.dGamma[0]);
-		dCovar[0]=dCovar[0]-dSum[0]*dSum[0]/(iNumOfIter*(iNumOfIter+1));
+		dCovar[0]=dCovar[0]-(dSum[0]/iNumOfIter)*(dSum[0]/(iNumOfIter+1));
 	}
 
-//	cout << "dSum " << dSum[0]<< endl;
-//	cout << "dCovar " << dCovar[0]<< endl;
-//	cout << "proposed logit " << dNewGammaLogit << "proposed  " << LogitTransformBack(dNewGammaLogit)<< endl;
-//	cout << "accepted logit " << LogitTransform(sParam.dGamma[0])<< "accepted " << sParam.dGamma[0] <<  endl;
+	cout << ":: ARW2 dSum " << dSum[0]<< endl;
+	cout << ":: ARW2 dSigma " << dSigma<< endl;
+	cout << ":: ARW2 dCovar " << dCovar[0]<< endl;
+	cout << ":: ARW proposed logit " << dNewGammaLogit << "proposed  " << LogitTransformBack(dNewGammaLogit)<< endl;
+	cout << ":: ARW accepted logit " << LogitTransform(sParam.dGamma[0])<< "accepted " << sParam.dGamma[0] <<  endl;
 
 	delete dLogPosteriorNew;
 	delete dLogPosteriorOld;
@@ -6952,12 +6982,10 @@ void DrawSesonalPoly(struct AllParam sParam,int iNumOfObs, double * vTimes,  con
 	gsl_matrix_free (mVar);
 	gsl_matrix_free (mVarInv);
 
-
 	delete dY2;
 	delete dY1;
 	delete dS2;
 	delete dS1;
-
 }
 
 
@@ -7615,8 +7643,6 @@ void KalmanFilterWithSeasonal(int iNumOfKnots,   gsl_matrix * mWTilde , double* 
 //			cout <<"At obs "<<i << " L  "<<k<<" is "<<mL[k]<<endl;
 //		}
 
-
-
 		if(i<iNumOfObs-1)
 		{
 			mNextA=mA+iDimOfStates;
@@ -7683,15 +7709,12 @@ void KalmanFilterWithSeasonal(int iNumOfKnots,   gsl_matrix * mWTilde , double* 
 	delete [] mTPL;
 	delete [] mKZ;
 	delete [] mLTrans;
-
-
 }
 
 void KalmanSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,int * vN, double* mZ,  double * mA, double *mP, double *mV,
 		double* mFInv, double* mL,   int iDimOfObs,int iDimOfStates,  int iNumOfObs, double *mAHat, double* mVHat )
 {
 	double * mZTrans= new double[iDimOfObs*iDimOfStates];
-
 
 	double * mR= new double[iDimOfStates];
 	double * mNextR= new double[iDimOfStates];
@@ -7766,7 +7789,6 @@ void KalmanSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,int * 
 			iDimOfObs=2;
 		}
 
-
 		/* Update R and N values */
 		for(int k=0; k<iDimOfStates; k++)
 		{
@@ -7787,7 +7809,6 @@ void KalmanSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,int * 
 			mFInv=mFInv-iDimOfObs*iDimOfObs;
 			mL=mL-iDimOfStates*iDimOfStates;
 		}
-
 	}
 
 	delete [] mZTrans;
@@ -7803,17 +7824,11 @@ void KalmanSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,int * 
 	delete [] mZFZ;
 	delete [] mLNL;
 	delete [] mPNP;
-
 }
 
 void CalculateLLWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct AllParam sParam,int iNumOfObs,  int iDimOfObs,
 		int iDimOfStates, double * dLL )
 {
-
-
-
-
-
 	double * mT =new double[iDimOfStates*iDimOfStates];
 	double * mQ =new double[iDimOfStates*iDimOfStates];
 	double * mZ =new double[iDimOfObs*iDimOfStates];
@@ -7988,7 +8003,6 @@ void SSFRecursionWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct A
 //	}
 
 
-
 	for(int i=0; i<iNumOfObs; i++)
 	{
 
@@ -8030,8 +8044,6 @@ void SSFRecursionWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct A
 		}
 
 
-
-
 		/* Recursion */
 		if(i==0)
 		{
@@ -8047,7 +8059,6 @@ void SSFRecursionWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct A
 //			cout<<"mQChol[2] "<<mQChol[2]<<endl;
 //			cout<<"mQChol[3] "<<mQChol[3]<<endl;
 
-
 			MatrixMulti(mQChol, mEtaDraw,iDimOfStates, iDimOfStates, iDimOfStates, 1, mEta);
 
 //			cout<<"Obs "<<i <<" mEtaDraw[0] "<<mEtaDraw[0]<<endl;
@@ -8057,8 +8068,6 @@ void SSFRecursionWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct A
 
 			MatrixMulti(mT, mAPlus,iDimOfStates, iDimOfStates, iDimOfStates, 1,mTa);
 			MatrixAdd(mTa, mEta, iDimOfStates, 1, mNextAPlus);
-
-
 		}
 
 //		cout<<iDimOfObs<<endl;
@@ -8076,11 +8085,7 @@ void SSFRecursionWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct A
 		MatrixMulti(mZ, mNextAPlus,iDimOfObs, iDimOfStates, iDimOfStates, 1, mZa);
 		MatrixAdd(mZa, mEps, iDimOfObs, 1, mNextYPlus);
 
-
-
-
 		/* Delete Random later just for check */
-
 
 //		for(int k=0; k<iDimOfStates;k++)
 //		{
@@ -8092,7 +8097,6 @@ void SSFRecursionWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct A
 //		{
 //			mRandom[(2+iDimOfStates)*(i+1)+iDimOfStates+0]=mEps[0];
 //			mRandom[(2+iDimOfStates)*(i+1)+iDimOfStates+1]=0;
-//
 //		}
 //		else
 //		{
@@ -8154,8 +8158,7 @@ void SSFRecursionWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct A
 
 }
 
-void SimulationSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct AllParam sParam,double *mY,double *mH,unsigned int iNumOfObs,
-		unsigned int iDimOfObs,unsigned int iDimOfStates, const gsl_rng * gsl_random_num, double* mDraw)
+void SimulationSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct AllParam sParam,double *mY,double *mH,unsigned int iNumOfObs, unsigned int iDimOfObs,unsigned int iDimOfStates, const gsl_rng * gsl_random_num, double* mDraw)
 {
 	double * mZ =new double[iDimOfObs*iDimOfStates];
 	double * mT =new double[iDimOfStates*iDimOfStates];
@@ -8177,7 +8180,6 @@ void SimulationSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,st
 	double * mV =new double[iNumOfObs*iDimOfObs];
 	double * mL=new double[iNumOfObs*iDimOfStates*iDimOfStates];
 
-
 	/* APlus */
 
 //	string sYFile="mY.csv";
@@ -8186,7 +8188,6 @@ void SimulationSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,st
 //	WriteOutDoubleArray(mH, iNumOfObs, 4, sHFile);
 //	string sNFile="mN.csv";
 //	WriteOutIntArray(sParam.vN, iNumOfObs, 1, sNFile);
-
 
 	SSFRecursionWithSeasonal(iNumOfKnots,    mWTilde ,sParam,sParam.vN, mH, mZ,  mT, mQ, mA1,  mP1,  iNumOfObs,  iDimOfObs,iDimOfStates,  gsl_random_num, mYPlus, mAPlus);
 
@@ -8230,7 +8231,6 @@ void SimulationSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,st
 	/* AHat */
 	KalmanFilterWithSeasonal(iNumOfKnots,   mWTilde ,mY, sParam.vN, mH, mZ,  mT, mQ, mA1,  mP1, iDimOfObs,iDimOfStates,  iNumOfObs, mA,  mP,  mFInv,  mV,  mL);
 	KalmanSmootherWithSeasonal( iNumOfKnots,    mWTilde ,sParam.vN,mZ,  mA, mP, mV,  mFInv,  mL,   iDimOfObs, iDimOfStates, iNumOfObs, mAHat,  mVHat );
-
 
 
 //	for(int i=0;i<int(iNumOfObs); i++)
@@ -8323,10 +8323,8 @@ void SimulationSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,st
 //				cout<<"mAuxH  "<<sParam.mAuxH[i*4]<<endl;
 //				cout<<"mAuxH  "<<sParam.mAuxH[i*4+3]<<endl;
 //			}
-//
 //		}
 //	}
-
 
 	double * mAHatAHatPlus =new double[iDimOfStates*iNumOfObs];
 	MatrixSub(mAHat, mAHatPlus, iNumOfObs, iDimOfStates, mAHatAHatPlus);
@@ -8354,16 +8352,15 @@ void SimulationSmootherWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,st
 	delete [] mV;
 	delete [] mL;
 	delete [] mAHatAHatPlus;
-
 }
 
-void DrawXandMuWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct AllParam sParam, int iNumOfObs,const gsl_rng * gsl_random_num )
+void DrawXandMuWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct AllParam sParam, int iNumOfObs, const gsl_rng * gsl_random_num )
+// 		DrawXandMuWithSeasonal(iNumOfKnots, mWTilde, sParam, iNumOfObs, gsl_random_num );
+
 {
 	int iDimOfObs=2;
 	int iDimOfStates= iNumOfKnots-1+2;
 	double * mDraw=new double[ iDimOfStates*iNumOfObs];
-
-
 
 //	for(int i=0; i<iNumOfObs; i++)
 //	{
@@ -8388,10 +8385,10 @@ void DrawXandMuWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct All
 //		mH[4*i+3]=sParam.mAuxH[4*i+3];
 //	}
 //
-	for(int j=0; j<iNumOfKnots-1; j++)
-	{
-		cout <<"beta " <<mDraw[j]<<endl;
-	}
+							// for(int j=0; j<iNumOfKnots-1; j++)
+							// {
+								// cout <<"beta " <<mDraw[j]<<endl;
+							// }
 
 	for(int i=0; i<iNumOfObs; i++)
 	{
@@ -8400,33 +8397,25 @@ void DrawXandMuWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde ,struct All
 		{
 			sParam.vS[i]=sParam.vS[i]+gsl_matrix_get(mWTilde,i,j)*mDraw[j];
 		}
-
 	}
-
 
 	for(int j=0; j<iNumOfKnots-1;j++)
 	{
 		sParam.vBeta[j]=mDraw[j];
 	}
 
-
 	sParam.dMu[0]=mDraw[iDimOfStates-2];
-
-
 
 	for(int i=0; i<iNumOfObs; i++)
 	{
 		sParam.vX[i]=mDraw[iDimOfStates*i+iDimOfStates-1];
-
 	}
-
 
 	delete [] mDraw;
 }
 
 double PhiSigmaLogPosteriorWithSeasonal(const gsl_vector *v, void *ParamPointer)
 {
-
 	struct AllParam * Param = (struct AllParam *)ParamPointer;
 	double dLogitPhi= gsl_vector_get(v, 0);
 	double dPhi=LogitTransformBack(dLogitPhi);
@@ -8455,8 +8444,6 @@ double PhiSigmaLogPosteriorWithSeasonal(const gsl_vector *v, void *ParamPointer)
 //	cout <<"Value dSigma " << dSigma << endl;
 //	cout <<"Value " <<-(dLLValue+dPhiPrior+dSigmaPrior)/((Param->iNumOfObs)[0]) <<endl;
 	return  -(dLLValue+dPhiPrior+dSigmaPrior)/((Param->iNumOfObs)[0]);
-
-
 }
 
 void PhiSigmaLogPosteriorDerivativeWithSeasonal(const gsl_vector *v, void *ParamPointer, gsl_vector *df)
@@ -9066,9 +9053,6 @@ void DrawPhiSigmaAdaptiveRWWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde
 //		cout<<"mSigma[1] "<<mSigma[1]<<endl;
 //		cout<<"mSigma[2] "<<mSigma[2]<<endl;
 //		cout<<"mSigma[3] "<<mSigma[3]<<endl;
-
-
-
 	}
 	else
 	{
@@ -9096,12 +9080,9 @@ void DrawPhiSigmaAdaptiveRWWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde
 
 		MatrixMulti(mChol, mRandom,2, 2, 2, 1, mNewLogParam);
 		MatrixAdd(mNewLogParam, mLogParam, 2, 1, mNewLogParam);
-
-
 	}
 	else
 	{
-
 		mRandom[0]=gsl_ran_gaussian(gsl_random_num,1);
 		mRandom[1]=gsl_ran_gaussian(gsl_random_num,1);
 //		cout<<"mRandom[0] "<<mRandom[0]<<endl;
@@ -9134,7 +9115,6 @@ void DrawPhiSigmaAdaptiveRWWithSeasonal( int iNumOfKnots,   gsl_matrix * mWTilde
 
 		MatrixMulti(mChol, mRandom,2, 2, 2, 1, mNewLogParam);
 		MatrixAdd(mNewLogParam, mLogParam, 2, 1, mNewLogParam);
-
 	}
 
 
@@ -9734,8 +9714,8 @@ void QuantilePPAlgo(int iN,   double dP,double* vX, double * mMarker , double *m
 
 	}
 
-}
-
+} 
+ 
 
 #undef PI
 

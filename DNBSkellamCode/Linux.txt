@@ -1,0 +1,56 @@
+path to your gsl lib folder inside the gsl installation folder:
+
+LD_LIBRARY_PATH=/home/aba228/gsl/lib 
+export LD_LIBRARY_PATH
+
+g++ -o DNB_pr MCMC.cpp CodeDynamicDNBInC.cpp -I/home/aba228/gsl/include -lm -L/home/aba228/gsl/lib -lgsl -lgslcblas
+
+
+g++ -o ReadWrite_pr MCMC.cpp Read_write.cpp -I/home/aba228/gsl/include -lm -L/home/aba228/gsl/lib -lgsl -lgslcblas
+
+
+g++ -o DNB_v2_pr MCMC.cpp CodeDynamicDNBInC_v2.cpp -I/home/aba228/gsl/include -lm -L/home/aba228/gsl/lib -lgsl -lgslcblas
+
+
+./DNB_v2_pr 20000 100000 20000 -1.7 0.97 0.02 0.001 15
+
+> Sk_logfile.txt
+|& tee Sk_logfile.txt
+
+|& tee DNB_logfile.txt
+
+When accessing command line arguments that are integers or floating-point numbers, we typically need to use atoi() or atof().
+base = atof(argv[1]); // use atof with double
+exponent = atoi(argv[2]); // use atoi with integer
+
+
+the last arg is seed number
+./DNB_v2_pr 20000 100000 20000 -1.7 0.97 0.02 0.001 15 2 |& tee DNB_logfile.txt
+
+
+*************************************************************************
+https://superuser.com/questions/69816/how-to-keep-windows-split-after-detaching-reattaching-gnu-screen
+Ctrl-a
+:
+layout save default
+
+
+
+
+./DNB_pr 20000 100000 20000 -1.0 0.97 0.25 0.1 15 2
+./DNB_pr 20000 100000 20000 -1.7 0.97 0.02 0.001 15 2
+
+
+
+g++ -o DNB_emp_bid_pr MCMC.cpp CodeDynamicDNBInC.cpp -I/home/aba228/gsl/include -lm -L/home/aba228/gsl/lib -lgsl -lgslcblas
+
+
+cd Dropbox/New\ Projects/Integer/Codes/DNBSkellamCode/src/BidPrice/Subdays/
+LD_LIBRARY_PATH=/home/aba228/gsl/lib 
+export LD_LIBRARY_PATH
+./DNB_emp_bid_pr 2 40000 20000 25 |& tee DNB_data25_logfile.txt
+
+
+
+
+

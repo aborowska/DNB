@@ -26,27 +26,25 @@ MCMC::MCMC()
 
 }
 
-MCMC::MCMC(vector<double> vParam)
+MCMC::MCMC(vector<double> vParam, int iSeedNo_in)
 {
-
 	if(vParam.size()==4 ||  vParam.size()==5 )
 	{
-
 		dMuTrue=vParam[0];
 		dPhiTrue=vParam[1];
 		dSigma2True=vParam[2];
 		dGammaTrue=vParam[3];
 
-
 		if(vParam.size()==5){
 			dNuTrue=vParam[4];
 		}
+		
+		iSeedNo = iSeedNo_in;
 	}
 	else
 	{
 		cout <<  "Number of parameters should be either 4 or 5 " << endl ;
 	}
-
 }
 
 MCMC::~MCMC()
@@ -73,8 +71,11 @@ MCMC::~MCMC()
  * dGammaTrue;
  *
  */
+// void MCMC::SimulateSkellamData( int iNumOfSim)
 void MCMC::SimulateSkellamData( int iNumOfSim)
 {
+	string sType;
+	sType="Sk";
 	const gsl_rng_type * T;
 	gsl_rng * r;
 
@@ -100,15 +101,14 @@ void MCMC::SimulateSkellamData( int iNumOfSim)
 	double dStateSigma=sqrt(dSigma2True);
 
 	int iNumOfSimPerDay=2000;
-	SimulateSeasonal(iNumOfSimPerDay, iNumOfSim/iNumOfSimPerDay,  vTimes,  vSeasonTrue);
+	// SimulateSeasonal(iNumOfSimPerDay, iNumOfSim/iNumOfSimPerDay,  vTimes,  vSeasonTrue);
+	SimulateSeasonal_str(sType, iNumOfSimPerDay, iNumOfSim/iNumOfSimPerDay,  vTimes,  vSeasonTrue);
 
 	for(int i=0; i<iNumOfSim; i++){
 		if(i==0)
 		{
-
 			/* Log intensity */
 			vXTrue[i]= gsl_ran_gaussian(r,sqrt(dSigma2True/(1-dPhiTrue*dPhiTrue)) );
-
 		}
 		else
 		{
@@ -141,10 +141,8 @@ void MCMC::SimulateSkellamData( int iNumOfSim)
 		{
 			vData[i]= iSkellam ;
 		}
-
 		cout << "Data at "<< i<<" is " << vData[i]<<  endl;
 	}
-
 	gsl_rng_free(r);
 	return;
 }
@@ -164,12 +162,15 @@ void MCMC::SimulateSkellamData( int iNumOfSim)
  */
 void MCMC::SimulateDNBData( int iNumOfSim)
 {
+	string sType;
+	sType="DNB";
 	const gsl_rng_type * T;
 	gsl_rng * r;
 
 	T=gsl_rng_default;
 	r=gsl_rng_alloc(T);
-	gsl_rng_set(r, 1);
+//	gsl_rng_set(r, 1);
+	gsl_rng_set(r, iSeedNo);
 
 	vData = new double[iNumOfSim];
 	vXTrue  = new double[iNumOfSim];
@@ -177,8 +178,6 @@ void MCMC::SimulateDNBData( int iNumOfSim)
 	vSeasonTrue = new double[iNumOfSim];
 	vTimes = new double[iNumOfSim];
 	iNumOfObs=iNumOfSim;
-
-
 
 	cout<<"dMuTrue "<< dMuTrue<<endl;
 	cout<<"dPhiTrue "<< dPhiTrue<<endl;
@@ -188,15 +187,14 @@ void MCMC::SimulateDNBData( int iNumOfSim)
 	double dStateSigma=sqrt(dSigma2True);
 
 	int iNumOfSimPerDay=2000;
-	SimulateSeasonal(iNumOfSimPerDay, iNumOfSim/iNumOfSimPerDay,  vTimes,  vSeasonTrue);
+	// SimulateSeasonal(iNumOfSimPerDay, iNumOfSim/iNumOfSimPerDay,  vTimes,  vSeasonTrue);
+	SimulateSeasonal_str(sType, iNumOfSimPerDay, iNumOfSim/iNumOfSimPerDay,  vTimes,  vSeasonTrue);
 
 	for(int i=0; i<iNumOfSim; i++){
 		if(i==0)
 		{
-
 			/* Log intensity */
 			vXTrue[i]= gsl_ran_gaussian(r,sqrt(dSigma2True/(1-dPhiTrue*dPhiTrue)) );
-
 		}
 		else
 		{
@@ -223,7 +221,6 @@ void MCMC::SimulateDNBData( int iNumOfSim)
 	return;
 }
 
-
 void MCMC::ImportData(string sFile)
 {
 	vector<vector<double> > mData;
@@ -247,7 +244,6 @@ void MCMC::ImportData(string sFile)
 		char* end;
 		while(getline(ssLine, var,',') )
 		{
-
 			vRow.push_back(strtod( var.c_str() ,&end) );
 		}
 		mData.push_back(vRow);
@@ -255,28 +251,72 @@ void MCMC::ImportData(string sFile)
 		iNumOfObs=iNumOfObs+1;
 		vRow.clear();
 	}
-
 	ifsDataFile.close();
-
-
 
 	vTimes = new double[iNumOfObs];
 	vData = new double[iNumOfObs];
+	
 	int k=0;
 	for(vector<vector<double> >::iterator i=mData.begin(); i != mData.end(); ++i)
 	{
-
 		vTimes[k]= (*i)[0];
 		vData[k]= (*i)[1];
 		cout<<"vData at "<<k<<" is "<<vData[k]<<endl;
 		k=k+1;
 	}
-
-
 	cout <<"The number of observations is: "<<iNumOfObs<<endl;
-
-
 }
+
+void MCMC::ImportData2(string sPath, string sFile)
+{
+	vector<vector<double> > mData;
+
+	sInput=sFile;
+	
+	string sAddress;
+	sAddress = sPath + sFile; 
+
+	fstream ifsDataFile;
+	// ifsDataFile.open(sFile.c_str(), ios::in);
+	ifsDataFile.open(sAddress.c_str(), ios::in);
+	if(!ifsDataFile.is_open()){
+		cerr << "Cannot open the file" << endl;
+		return;
+	}
+	string line;
+	iNumOfObs=0;
+	while ( getline (ifsDataFile,line) )
+	{
+		vector<double>vRow;
+	//	cout << line << '\n';
+		stringstream ssLine(line);
+		string var;
+		char* end;
+		while(getline(ssLine, var,',') )
+		{
+			vRow.push_back(strtod( var.c_str() ,&end) );
+		}
+		mData.push_back(vRow);
+
+		iNumOfObs=iNumOfObs+1;
+		vRow.clear();
+	}
+	ifsDataFile.close();
+
+	vTimes = new double[iNumOfObs];
+	vData = new double[iNumOfObs];
+	
+	int k=0;
+	for(vector<vector<double> >::iterator i=mData.begin(); i != mData.end(); ++i)
+	{
+		vTimes[k]= (*i)[0];
+		vData[k]= (*i)[1];
+		cout<<"vData at "<<k<<" is "<<vData[k]<<endl;
+		k=k+1;
+	}
+	cout <<"The number of observations is: "<<iNumOfObs<<endl;
+}
+
 
 void MCMC::ExportSimulatedData()
 {
@@ -305,14 +345,62 @@ void MCMC::ExportSimulatedData()
 	return;
 }
 
+
+void MCMC::ExportSimulatedData2(string sType)
+{
+	string sPrefix;
+	CreatPrefix(sInput,sType, &sPrefix );
+
+/* 	mkdir("OutPut",S_IRWXU|S_IRGRP|S_IXGRP);
+	fstream ofsData;
+	ofsData.open(("OutPut/"+sFile).c_str(), ios::out); */	
+	
+/* 	fstream ofsData;
+	ofsData.open((sPrefix+"SimulatedData.csv").c_str(), ios::out); */
+	
+	mkdir("OutPut",S_IRWXU|S_IRGRP|S_IXGRP);
+	fstream ofsData;
+	ofsData.open(("OutPut/"+sPrefix+"SimulatedData.csv").c_str(), ios::out);
+	
+	if(!ofsData.is_open()){
+		cerr << "Cannot open the file" << endl;
+		return;
+	}
+	for(int i=0; i< iNumOfObs; ++i){
+		ofsData << vData[i] << " , "<< vTimes[i]<< endl;
+	}
+	ofsData.close();
+
+	fstream ofsLogInt;
+	ofsLogInt.open(("OutPut/"+sPrefix+"SimulatedLogInt.csv").c_str(), ios::out);
+	if(!ofsLogInt.is_open()){
+		cerr << "Cannot open the file" << endl;
+		return;
+	}
+	for(int i=0; i< iNumOfObs; ++i){
+		ofsLogInt << vXTrue[i] << endl;
+	}
+	ofsLogInt.close();
+
+	return;
+}
+
 void MCMC::ExportEstimationResults()
 {
 	string sPrefix;
 	CreatPrefix(sInput,sType, &sPrefix );
 
-
+/* 	mkdir("OutPut",S_IRWXU|S_IRGRP|S_IXGRP);
 	fstream ofsData;
-	ofsData.open((sPrefix+"EstimationResults.csv").c_str(), ios::out);
+	ofsData.open(("OutPut/"+sFile).c_str(), ios::out); */
+	
+/* 	fstream ofsData;
+	ofsData.open((sPrefix+"EstimationResults.csv").c_str(), ios::out); */
+
+	mkdir("OutPut",S_IRWXU|S_IRGRP|S_IXGRP);
+	fstream ofsData;
+	ofsData.open(("OutPut/"+sPrefix+"EstimationResults.csv").c_str(), ios::out);
+	
 	if(!ofsData.is_open()){
 		cerr << " ExportEstimationResults Error: Cannot open the file" << endl;
 		return;
@@ -389,8 +477,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 	sParam.mAuxY=new double[2*iNumOfObs];
 	sParam.mAuxH=new double[4*iNumOfObs];
 
-
-
 	sParam.iNumOfObs[0]=iNumOfObs;
 
 	sParam.dMu[0]=0;
@@ -404,7 +490,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 //	sParam.dSigma2[0]=0.5;
 //	sParam.dGamma[0]=0.2;
 
-
 	sParam.dPriorGammaA[0]=1.7;
 	sParam.dPriorGammaB[0]=10;
 	sParam.dPriorMuMean[0]=0;
@@ -416,10 +501,8 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 	sParam.dPriorSeasonalMean[0]=0;
 	sParam.dPriorSeasonalVar[0]=1;
 
-
 	for(int i=0; i<iNumOfObs; i++)
 	{
-
 //		sParam.vS[i]=vSeasonTrue[i];
 //		sParam.vX[i]=vXTrue[i];
 //		sParam.vS[i]=vSeasonTrue[i];
@@ -429,16 +512,9 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 //		sParam.vTau2[i]=vTau2True[i];
 	}
 
-
 	/*Initializing the iteration*/
-
-
 	time_t start,end;
 	time (&start);
-
-
-
-
 
 	double * vLogIntEst=new double[iNumOfObs];
 	double * vXEst=new double[iNumOfObs];
@@ -465,12 +541,8 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 		vXVolEst[j]=0;
 		vSeasonVolEst[j]=0;
 		vVolVolEst[j]=0;
-
 	}
 
-
-
-//
 //	double * mXDraws=new double[iNumOfObs*iNumOfIter];
 //	double * mNDraws=new double[iNumOfObs*iNumOfIter];
 //	double * mSeasonDraws=new double[iNumOfObs*iNumOfIter];
@@ -480,7 +552,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 
 //	string svYTrueFile="mYTrue.csv";
 //	WriteOutDoubleArray( vData , iNumOfObs, 1, svYTrueFile);
-
 
 	int iNumOfKnots=3;
 	double * vKnots= new double[iNumOfKnots];
@@ -610,7 +681,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 		DrawXandMuWithSeasonal(iNumOfKnots, mWTilde, sParam,iNumOfObs, gsl_random_num );
 		cout << "dMu " << sParam.dMu[0] << endl;
 
-
 		if(i>=iBurnIn)
 		{
 			for(int k=0; k<iNumOfObs; k++)
@@ -630,7 +700,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 					mMarkerSHigh[k*5+i-iBurnIn]=sParam.vS[k];;
 					mMarkerVolHigh[k*5+i-iBurnIn]=vVol[k];
 				}
-
 			}
 			else
 			{
@@ -643,7 +712,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 					InitializeQuantilePPAlgo(iNumOfObs, 0.95, mMarkerSHigh,  mNSHigh , mNDSHigh);
 					InitializeQuantilePPAlgo(iNumOfObs, 0.95, mMarkerVolHigh,  mNVolHigh , mNDVolHigh);
 				}
-
 				 QuantilePPAlgo(iNumOfObs, 0.05,sParam.vX,  mMarkerXLow,  mNXLow , mNDXLow);
 				 QuantilePPAlgo(iNumOfObs, 0.05, sParam.vS, mMarkerSLow,  mNSLow , mNDSLow);
 				 QuantilePPAlgo(iNumOfObs, 0.05,vVol, mMarkerVolLow,  mNVolLow , mNDVolLow);
@@ -651,7 +719,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 				 QuantilePPAlgo(iNumOfObs, 0.95,sParam.vS, mMarkerSHigh,  mNSHigh , mNDSHigh);
 				 QuantilePPAlgo(iNumOfObs, 0.95,vVol, mMarkerVolHigh,  mNVolHigh , mNDVolHigh);
 			}
-
 
 //			SequentialStore(i-iBurnIn, iNumOfIter-iBurnIn,iNumOfObs, sParam.vX , Xfs,  sPrefix+sXDraw);
 //			SequentialStore(i-iBurnIn, iNumOfIter-iBurnIn,iNumOfObs, sParam.vS , Sfs,  sPrefix+sSDraw);
@@ -663,17 +730,11 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 				vVolEst[j]=vVolEst[j]+vVol[j]/(iNumOfIter-iBurnIn);
 				vLogIntEst[j]=vLogIntEst[j]+(sParam.dMu[0]+sParam.vS[j]+sParam.vX[j])/(iNumOfIter-iBurnIn);
 
-
-
-
 				vX2Est[j]=vX2Est[j]+sParam.vX[j]*sParam.vX[j]/(iNumOfIter-iBurnIn);
 				vSeason2Est[j]=vSeason2Est[j]+sParam.vS[j]*sParam.vS[j]/(iNumOfIter-iBurnIn);
 				vVol2Est[j]=vVol2Est[j]+vVol[j]*vVol[j]/(iNumOfIter-iBurnIn);
 			}
-
-
 		}
-
 
 		/*Save new draws */
 		vector<double> vTempRow;
@@ -686,14 +747,17 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 		{
 			vTempRow.push_back(sParam.vBeta[k]);
 		}
-
 		mChain.push_back(vTempRow);
 	}
 	time (&end);
 	double dif = difftime (end,start);
-	printf ("Elasped time is %.2lf seconds. \n", dif );
+	printf ("Elapsed time is %.2lf seconds. \n", dif );
 
-
+		FILE * pFile;
+		pFile = fopen ("Sk_time.txt","w");
+		fprintf (pFile, "Skellman time = %16.4f s\n",dif);
+		fclose (pFile);
+  
 	for(int j=0; j<iNumOfObs;j++)
 	{
 		vXVolEst[j]=vX2Est[j]-vXEst[j]*vXEst[j];
@@ -719,15 +783,11 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 	WriteOutDoubleArray( vSeasonEst , iNumOfObs, 1, sPrefix+sSeasonEstFile);
 	cout<<"Season Est Saved!"<<endl;
 
-
-
-
 //	string sYStarTrueFile="vYStarTrue.csv";
 //	WriteOutDoubleArray( vYStarTrue , iNumOfObs, 1, sYStarTrueFile);
 //
 //	string sLambdaTrueFile="vLambdaTrue.csv";
 //	WriteOutDoubleArray( vLambdaTrue , iNumOfObs, 1, sLambdaTrueFile);
-
 
 
 	string sVolEstFile="vVolEst.csv";
@@ -771,10 +831,6 @@ void MCMC::EstimateSkellam( int iNumOfIter, int iBurnIn)
 	cout<<"Vol Vol Saved!"<<endl;
 
 	cout <<"Write out done"<<endl;
-
-
-
-
 
 	cout <<"Write out done"<<endl;
 
@@ -856,6 +912,8 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	CreatPrefix(sInput,sType, &sPrefix );
 	cout<< "prefix done" <<endl;
 	/* Initialize parameters and latent variables */
+	
+
 	const gsl_rng_type * T;
 	gsl_rng * gsl_random_num;
 	T=gsl_rng_default;
@@ -873,6 +931,7 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	double* dSumGamma=new double;
 	double* mCovar = new double[4];
 	double* mSum=new double[2];
+
 	mCovar[0]=0;
 	mCovar[1]=0;
 	mCovar[2]=0;
@@ -906,7 +965,6 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	sParam.dPriorSeasonalVar=new double;
 
 
-
 	sParam.vS=new double [iNumOfObs];
 	sParam.vX=new double [iNumOfObs];
 	sParam.vZ1=new double [iNumOfObs];
@@ -918,16 +976,28 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	sParam.mAuxH=new double[4*iNumOfObs];
 
 
-
 	sParam.iNumOfObs[0]=iNumOfObs;
 
-	sParam.dMu[0]=0;
-	sParam.dPhi[0]=0.95;
-	sParam.dSigma2[0]=0.01;
-	sParam.dGamma[0]=0.3;
-//	sParam.dGamma[0]=0;
-	sParam.dNu[0]=20;
-
+	if (sInput.empty()) 
+	{
+		cout << "Initials for the simulation" << endl;
+		sParam.dMu[0]= dMuTrue; // -1.5; // 0;
+		sParam.dPhi[0]= dPhiTrue; //0.97; // 0.95;
+		sParam.dSigma2[0]=dSigma2True; // 0.02; //0.01;
+		sParam.dGamma[0]= dGammaTrue; //0.01; //0.3;
+	//	sParam.dGamma[0]=0;
+		sParam.dNu[0]= dNuTrue; // 15; //20;
+	} 
+	else
+	{
+		cout << "Initials for the empirical" << endl;
+		sParam.dMu[0]=0;
+		sParam.dPhi[0]=0.95;
+		sParam.dSigma2[0]=0.01;
+		sParam.dGamma[0]=0.3;
+	//	sParam.dGamma[0]=0;
+		sParam.dNu[0]=20;
+	}
 //	sParam.dMu[0]=2.5;
 //	sParam.dPhi[0]=0.90;
 //	sParam.dSigma2[0]=0.5;
@@ -954,16 +1024,10 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 		sParam.vZ2[i]=1.05;
 	}
 
-
 	/*Initializing the iteration*/
-
-
-
 
 	time_t start,end;
 	time (&start);
-
-
 
 	double * vLogIntEst=new double[iNumOfObs];
 	double * vXEst=new double[iNumOfObs];
@@ -990,12 +1054,14 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 		vXVolEst[j]=0;
 		vSeasonVolEst[j]=0;
 		vVolVolEst[j]=0;
-
 	}
 
 
 //	double * mXDraws=new double[iNumOfObs*iNumOfIter];
 
+/////////////////////////////////////
+//// KNOTS AND BETAS /////////////////
+/////////////////////////////////////
 	int iNumOfKnots=3;
 	double * vKnots= new double[iNumOfKnots];
 //	vKnots[0]=0; /* 9.30 */
@@ -1003,7 +1069,6 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 //	vKnots[2]=10800; /* 12.30 */
 //	vKnots[3]=18000;/* 14.30 */
 //	vKnots[iNumOfKnots-1]=23400; /* 16.00 */
-
 
 //	vKnots[0]=300; /* 9.35 */
 //	vKnots[1]=5400; /* 11 */
@@ -1018,10 +1083,7 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	vKnots[1]=10800;  /* 12.30 */
 	vKnots[2]=23400; /* 16.00 */
 
-
-
 	sParam.vBeta=new double [iNumOfKnots-1];
-
 	for(int k=0; k<iNumOfKnots-1; k++)
 	{
 		sParam.vBeta[k]=0;
@@ -1066,7 +1128,10 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 //	cout<<"hyper Geo  " <<HyperGeo(5, -300, 10, 0.5)<<endl;
 
 
+/////////////////////////////////////
 	/*MCMC Iterations*/
+/////////////////////////////////////	
+	
 	for( int i=0; i<iNumOfIter; i++)
 	{
 		cout <<"==== Iteration: " << i << " ===="<< endl;
@@ -1089,12 +1154,10 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 		cout<<"DrawN Done!"<<endl;
 		/*Draw Tau1, Tau2 */
 		DrawTauDNB( sParam, iNumOfObs ,  gsl_random_num);
-		cout<<"DrawTau Done!"<<endl;
+		 cout<<"DrawTau Done!"<<endl;
 		/*Draw S */
 		DrawAuxYandAuxHDNB(sParam, iNumOfObs , gsl_random_num);
 		cout<<"Draw Aux Done!"<<endl;
-
-
 
 		/*Draw Seasonal*/
 //		DrawSesonal(sParam, iNumOfObs, iNumOfKnots,mWTilde ,gsl_random_num);
@@ -1114,8 +1177,7 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 		/* Draw X, Mu THIS IS COMPLETLY THE SAME AS SKELLAM */
 //		DrawXandMu(sParam,iNumOfObs, gsl_random_num );
 		DrawXandMuWithSeasonal(iNumOfKnots, mWTilde, sParam,iNumOfObs, gsl_random_num );
-		cout << "dMu " << sParam.dMu[0] << endl;
-
+		// cout << "dMu " << sParam.dMu[0] << endl;
 
 		if(i>=iBurnIn)
 		{
@@ -1136,7 +1198,6 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 					mMarkerSHigh[k*5+i-iBurnIn]=sParam.vS[k];;
 					mMarkerVolHigh[k*5+i-iBurnIn]=vVol[k];
 				}
-
 			}
 			else
 			{
@@ -1149,7 +1210,6 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 					InitializeQuantilePPAlgo(iNumOfObs, 0.95, mMarkerSHigh,  mNSHigh , mNDSHigh);
 					InitializeQuantilePPAlgo(iNumOfObs, 0.95, mMarkerVolHigh,  mNVolHigh , mNDVolHigh);
 				}
-
 				 QuantilePPAlgo(iNumOfObs, 0.05,sParam.vX,  mMarkerXLow,  mNXLow , mNDXLow);
 				 QuantilePPAlgo(iNumOfObs, 0.05, sParam.vS, mMarkerSLow,  mNSLow , mNDSLow);
 				 QuantilePPAlgo(iNumOfObs, 0.05,vVol, mMarkerVolLow,  mNVolLow , mNDVolLow);
@@ -1157,7 +1217,6 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 				 QuantilePPAlgo(iNumOfObs, 0.95,sParam.vS, mMarkerSHigh,  mNSHigh , mNDSHigh);
 				 QuantilePPAlgo(iNumOfObs, 0.95,vVol, mMarkerVolHigh,  mNVolHigh , mNDVolHigh);
 			}
-
 
 //			SequentialStore(i-iBurnIn, iNumOfIter-iBurnIn,iNumOfObs, sParam.vX , Xfs,  sPrefix+sXDraw);
 //			SequentialStore(i-iBurnIn, iNumOfIter-iBurnIn,iNumOfObs, sParam.vS , Sfs,  sPrefix+sSDraw);
@@ -1169,15 +1228,10 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 				vVolEst[j]=vVolEst[j]+vVol[j]/(iNumOfIter-iBurnIn);
 				vLogIntEst[j]=vLogIntEst[j]+(sParam.dMu[0]+sParam.vS[j]+sParam.vX[j])/(iNumOfIter-iBurnIn);
 
-
-
-
 				vX2Est[j]=vX2Est[j]+sParam.vX[j]*sParam.vX[j]/(iNumOfIter-iBurnIn);
 				vSeason2Est[j]=vSeason2Est[j]+sParam.vS[j]*sParam.vS[j]/(iNumOfIter-iBurnIn);
 				vVol2Est[j]=vVol2Est[j]+vVol[j]*vVol[j]/(iNumOfIter-iBurnIn);
 			}
-
-
 		}
 
 		/*Save new draws */
@@ -1198,8 +1252,13 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	}
 	time (&end);
 	double dif = difftime (end,start);
-	printf ("Elasped time is %.2lf seconds. \n", dif );
+	printf ("Elapsed time is %.2lf seconds. \n", dif );
 
+		FILE * pFile;
+		pFile = fopen ("DNB_time.txt","w");
+		fprintf (pFile, "DNB time = %16.4f s\n",dif);
+		fclose (pFile);
+	
 	for(int j=0; j<iNumOfObs;j++)
 	{
 		vXVolEst[j]=vX2Est[j]-vXEst[j]*vXEst[j];
@@ -1225,15 +1284,11 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	WriteOutDoubleArray( vSeasonEst , iNumOfObs, 1, sPrefix+sSeasonEstFile);
 	cout<<"Season Est Saved!"<<endl;
 
-
-
-
 //	string sYStarTrueFile="vYStarTrue.csv";
 //	WriteOutDoubleArray( vYStarTrue , iNumOfObs, 1, sYStarTrueFile);
 //
 //	string sLambdaTrueFile="vLambdaTrue.csv";
 //	WriteOutDoubleArray( vLambdaTrue , iNumOfObs, 1, sLambdaTrueFile);
-
 
 
 	string sVolEstFile="vVolEst.csv";
@@ -1279,8 +1334,7 @@ void MCMC::EstimateDNB(int iNumOfIter, int iBurnIn)
 	cout <<"Write out done"<<endl;
 //	WriteOutDoubleArray(vXTrue, iNumOfObs, 1, sLogIntTrueFile);
 
-
-
+	
 	delete [] vZeroDNBDens;
 	delete [] vIndicator;
 	delete [] vDNBDens;

@@ -92,7 +92,7 @@ def autocorr(x, t=1):
 def CheckData(DataFiles):
     #loading data
     for f in DataFiles: 
-        print 'XXXXXXXXX '+f+' XXXXXXXXXXX'
+        print('XXXXXXXXX '+f+' XXXXXXXXXXX')
         #Reading in the file
         df=DataFrame.from_csv('RawData/'+f).reset_index()
         
@@ -103,28 +103,28 @@ def CheckData(DataFiles):
         #df=df[['#RIC' , 'Date[G]', 'Time[G]','GMT Offset', 'Type','Price', 'Volume']]
         # Forward filling missing values fro Bid Price and Ask Price 
 
-        print 'Number of rows: '+str(len(df))
+        print('Number of rows: '+str(len(df)))
        
         #Filtering on trades
         trades=df[df['Type']=='Trade']
-        print 'Number of trades: '+str(len(trades))
+        print('Number of trades: '+str(len(trades))
         
         trades=trades[(np.isnan(trades['Price'])==0) & ( np.isnan(trades['Volume'])==0) ]
-        print 'Number of trades without price: '+str(len(trades))
+        print('Number of trades without price: '+str(len(trades)))
 
         
         #trades=trades[:5000]
 
 
-        trades_timeg=trades.sort(['Date[G]','Time[G]'])
-        trades_timee=trades.sort(['Date[G]','Exch Time'])       
+        trades_timeg=trades.sort_values(['Date[G]','Time[G]'])
+        trades_timee=trades.sort_values(['Date[G]','Exch Time'])       
         
         price_timeg=np.array(trades_timeg['Price'])
         price_timee=np.array(trades_timee['Price'])
         
         price_diff=price_timeg-price_timee
         sum_diff=np.sum(price_diff)
-        print sum_diff
+        print(sum_diff)
        
        
 def FormatNum(Num, NumOfDig):

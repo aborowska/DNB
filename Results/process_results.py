@@ -329,9 +329,12 @@ def TracePlotAll(File, aData,Mean, iNumOfParam, iNumOfZeros, sXAxisLabel):
     
     fig.tight_layout()  
     fig.subplots_adjust(top=0.92)     
-    fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'trace_all.png', bbox_inches=0)
-    fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'trace_all.pdf', bbox_inches=0)          
-   
+    fig.savefig(File.rstrip('_EstimationResults.csv')+'trace_all.png', bbox_inches=0)
+    fig.savefig(File.rstrip('_EstimationResults.csv')+'trace_all.pdf', bbox_inches=0)          
+    # fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'trace_all.png', bbox_inches=0)
+    # fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'trace_all.pdf', bbox_inches=0) 
+
+	
 def DensityPlot(aData, Mean,Low, High,sXAxisLabel,sFilename):
         iNumOfSample=len(aData)
         x_grid = np.linspace(min(aData), max(aData), 1000)
@@ -424,9 +427,10 @@ def DensityPlotAll(File, aData, iNumOfParam,iNumOfZeros, Mean,Low, High,sXAxisLa
     
     fig.tight_layout()  
     fig.subplots_adjust(top=0.92)     
-    fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'dens_all.png', bbox_inches=0)
-    fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'dens_all.pdf', bbox_inches=0)           
-    
+    fig.savefig(File.rstrip('_EstimationResults.csv')+'dens_all.png', bbox_inches=0)
+    fig.savefig(File.rstrip('_EstimationResults.csv')+'dens_all.pdf', bbox_inches=0)           
+    # fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'dens_all.png', bbox_inches=0)
+    # fig.savefig('../Paper/Pictures/'+File.rstrip('_EstimationResults.csv')+'dens_all.pdf', bbox_inches=0)      
 
 
 def ProcessLLOutPut(SkellamFiles,DNBFiles, OrdNFiles,OrdTFiles,OutSampleFiles):
@@ -558,8 +562,10 @@ def ProcessLLOutPut(SkellamFiles,DNBFiles, OrdNFiles,OrdTFiles,OutSampleFiles):
     
     fig.tight_layout()  
     fig.subplots_adjust(top=0.92, wspace=0.35, right=0.93,left=0.07, hspace=0.35)       
-    fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_OutLL.png', bbox_inches=0)
-    fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_OutLL.pdf', bbox_inches=0)          
+    # fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_OutLL.png', bbox_inches=0)
+    # fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_OutLL.pdf', bbox_inches=0)          
+    fig.savefig(SkellamFiles[0][0:4]+'_OutLL.png', bbox_inches=0)
+    fig.savefig(SkellamFiles[0][0:4]+'_OutLL.pdf', bbox_inches=0)     
 #    fig.savefig('../Poster/'+SkellamFiles[0][0:4]+'_OutLL.png', bbox_inches=0)
 #    fig.savefig('../Poster/'+SkellamFiles[0][0:4]+'_OutLL.pdf', bbox_inches=0)   
 
@@ -770,9 +776,11 @@ def ProcessBICOutPut(SkellamFiles,DNBFiles,NormalFiles,TFiles,EstimatesSk, Estim
     fig.tight_layout()  
     fig.subplots_adjust(top=0.92, wspace=0.35, right=0.93,left=0.07, hspace=0.25)     
 
-    fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_InLL.png', bbox_inches=0)
-    fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_InLL.pdf', bbox_inches=0)   
-
+    # fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_InLL.png', bbox_inches=0)
+    # fig.savefig('../Paper/Pictures/'+SkellamFiles[0][0:4]+'_InLL.pdf', bbox_inches=0)   
+    fig.savefig(SkellamFiles[0][0:4]+'_InLL.png', bbox_inches=0)
+    fig.savefig(SkellamFiles[0][0:4]+'_InLL.pdf', bbox_inches=0)   
+	
 #    fig.savefig('../Poster/'+SkellamFiles[0][0:4]+'_InLL.png', bbox_inches=0)
 #    fig.savefig('../Poster/'+SkellamFiles[0][0:4]+'_InLL.pdf', bbox_inches=0)   
 
@@ -817,12 +825,12 @@ def ProcessMCMCOutPut(Files,BurnIn):
         if(f.find('DNB')!=-1 or f.find('OrdT')!=-1):
 #            ParamNamesLatex=['$ \mu $', '$ \phi $' ,'$ \sigma^{2} $','$\gamma$', r'$ \beta_{1} $', r'$ \beta_{2} $',r'$ \beta_{3} $',r'$ \beta_{4} $' ,'$\\nu$' ]
 #            ParamNames=['mu', 'phi' ,'sigma2','gamma', 'beta1', 'beta2','beta3 ','beta4' , 'nu'  ]
-            ParamNamesLatex=['$ \mu $', '$ \phi $' ,'$ \sigma^{2} $','$\gamma$', r'$ \beta_{1} $' ,r'$ \beta_{2} $' ,'$\\nu$' ]
+            ParamNamesLatex=['$ \mu $', r'$ \varphi $' , r'$ \sigma_{\eta}^{2} $','$\gamma$', r'$ \beta_{1} $' ,r'$ \beta_{2} $' ,'$\\nu$' ]
             ParamNames=['mu', 'phi' ,'sigma2','gamma', 'beta1','beta2',  'nu'  ]
         else:    
 #            ParamNamesLatex=['$ \mu $', '$ \phi $' ,'$ \sigma^{2} $','$\gamma$', r'$ \beta_{1} $', r'$ \beta_{2} $',r'$ \beta_{3} $',r'$ \beta_{4} $'  ]
 #            ParamNames=['mu', 'phi' ,'sigma2','gamma', 'beta1', 'beta2','beta3 ','beta4'  ]
-            ParamNamesLatex=['$ \mu $', '$ \phi $' ,'$ \sigma^{2} $','$ \gamma $', r'$ \beta_1 $',r'$ \beta_2 $'  ]
+            ParamNamesLatex=['$ \mu $', r'$ \varphi $', r'$ \sigma_{\eta}^{2} $','$ \gamma $', r'$ \beta_1 $',r'$ \beta_2 $'  ]
             ParamNames=['mu', 'phi' ,'sigma2','gamma', 'beta1', 'beta2' ]
         
         
@@ -923,7 +931,7 @@ def ProcessMCMCOutPut(Files,BurnIn):
         writer.writerows(aESS)  
    
    
-    RowNames=['$ \mu $', '$ \phi $' ,'$ \sigma^{2} $','$\gamma$', r'$ \beta_{1} $', r'$ \beta_{2} $','$\\nu$' ]
+    RowNames=['$ \mu $', '$ \varphi $' ,'$ \sigma_{\eta}^{2} $','$\gamma$', r'$ \beta_{1} $', r'$ \beta_{2} $','$\\nu$' ]
 #    RowNames=['$ \mu $', '$ \phi $' ,'$ \sigma^{2} $','$\gamma$', r'$ \beta_{1} $','$\\nu$' ]   
 #    ResultTable(Files[0].split('_')[0], RowNames,ColNamesU,aMean,aHPDLow, aHPDHigh,aMaxInef,aMinESS)     
     ResultTable2(Files[0].split('_')[0], RowNames,ColNamesU,aMean,aHPDLow, aHPDHigh,aMaxInef,aMinESS,2)     
@@ -1200,10 +1208,12 @@ def Sesonal2(DataIn,XIn, XLow, XHigh,SIn, SLow, SHigh):
     
     fig.tight_layout()  
     fig.subplots_adjust(top=0.92, wspace=0.35, right=0.93,left=0.07, hspace=0.2)   
-    fig.savefig('../Paper/Pictures/'+DataIn.split('_')[3].strip('.csv')+'_season2.pdf', bbox_inches=0)
-    fig.savefig('../Paper/Pictures/'+DataIn.split('_')[1][0:4]+'_'+DataIn.split('_')[3].strip('.csv')+'_season2.png', bbox_inches=0)   
+    # fig.savefig('../Paper/Pictures/'+DataIn.split('_')[3].strip('.csv')+'_season2.pdf', bbox_inches=0)
+    # fig.savefig('../Paper/Pictures/'+DataIn.split('_')[1][0:4]+'_'+DataIn.split('_')[3].strip('.csv')+'_season2.png', bbox_inches=0) 
+    fig.savefig(DataIn.split('_')[3].strip('.csv')+'_season2.pdf', bbox_inches=0)
+    fig.savefig(DataIn.split('_')[1][0:4]+'_'+DataIn.split('_')[3].strip('.csv')+'_season2.png', bbox_inches=0) 	
     
-''' XXXXXXXXXXXXXXXXXXX 2010 XXXXXXXXXXXXXXXXXXXXXXX '''        
+# ''' XXXXXXXXXXXXXXXXXXX 2010 XXXXXXXXXXXXXXXXXXXXXXX '''        
 
 #''' XXXXXXXXXXXXXXXXXXX 2010 Parameters XXXXXXXXXXXXXXXXXXXXXXX '''  
 #Files=['2010_AA_Sk_EstimationResults.csv', '2010_AA_OrdNormal_EstimationResults.csv','2010_AA_DNB_EstimationResults.csv','2010_AA_OrdT_EstimationResults.csv',
@@ -1250,12 +1260,24 @@ def Sesonal2(DataIn,XIn, XLow, XHigh,SIn, SLow, SHigh):
 #                'Data_20100430_30_JPM.csv',
 #                'Data_20100430_30_KO.csv',
 #                'Data_20100430_30_XRX.csv' ]
-#
-#ProcessLLOutPut(SkellamFiles,DNBFiles,OrdNFiles,OrdTFiles,OutSampleFiles)
+# 
+
+SkellamFiles=['2010_IBM_Sk_vLogLikeSkellam.csv',
+             '2010_KO_Sk_vLogLikeSkellam.csv']
+DNBFiles=['2010_IBM_DNB_vLogLikeDNB.csv',
+         '2010_KO_DNB_vLogLikeDNB.csv']
+OrdNFiles=['2010_IBM_OrdNormal_vLogLikeNormal.csv',
+         '2010_KO_OrdNormal_vLogLikeNormal.csv']
+OrdTFiles=['2010_IBM_OrdT_vLogLikeT.csv',
+         '2010_KO_OrdT_vLogLikeT.csv']          
+         
+OutSampleFiles=['Data_20100430_30_IBM.csv',
+               'Data_20100430_30_KO.csv']
+ProcessLLOutPut(SkellamFiles,DNBFiles,OrdNFiles,OrdTFiles,OutSampleFiles)
 
 
 
-''' XXXXXXXXXXXXXXXXXXX 2010 in sample XXXXXXXXXXXXXXXXXXXXXXX '''  
+# ''' XXXXXXXXXXXXXXXXXXX 2010 in sample XXXXXXXXXXXXXXXXXXXXXXX '''  
 
 #SkellamFiles=['2010_AA_Sk_vInSkellamBIC.csv',
 #              '2010_F_Sk_vInSkellamBIC.csv',
@@ -1318,12 +1340,36 @@ def Sesonal2(DataIn,XIn, XLow, XHigh,SIn, SLow, SHigh):
 #                'Data_20100423_29_KO.csv',
 #                'Data_20100423_29_XRX.csv' ]
 #
+SkellamFiles=['2010_IBM_Sk_vInSkellamBIC.csv',
+             '2010_KO_Sk_vInSkellamBIC.csv']
+DNBFiles=['2010_IBM_DNB_vInDNBBIC.csv',
+         '2010_JPM_DNB_vInDNBBIC.csv']
+
+NormalFiles=['2010_IBM_OrdNormal_vInNormalBIC.csv',
+            '2010_KO_OrdNormal_vInNormalBIC.csv']
+TFiles=['2010_IBM_OrdT_vTBIC.csv',
+        '2010_KO_OrdT_vTBIC.csv']          
+         
+
+EstimatesSk=['2010_IBM_Sk_EstimationResults.csv',
+			'2010_KO_Sk_EstimationResults.csv']  
+EstimatesDNB=['2010_IBM_DNB_EstimationResults.csv',
+			 '2010_KO_DNB_EstimationResults.csv']         
+
+EstimatesNormal=['2010_IBM_OrdNormal_EstimationResults.csv',
+				'2010_KO_OrdNormal_EstimationResults.csv']  
+
+EstimatesT=['2010_IBM_OrdT_EstimationResults.csv',
+			'2010_KO_OrdT_EstimationResults.csv']  
+
+InSampleFiles=['Data_20100423_29_IBM_Bid.csv',
+               'Data_20100423_29_KO_Bid.csv']
 #
-#ProcessBICOutPut(SkellamFiles,DNBFiles,NormalFiles,TFiles,EstimatesSk, EstimatesDNB,EstimatesNormal, EstimatesT,InSampleFiles)
-'''
-========================================================================================
-========================================================================================
-========================================================================================'''
+ProcessBICOutPut(SkellamFiles,DNBFiles,NormalFiles,TFiles,EstimatesSk, EstimatesDNB,EstimatesNormal, EstimatesT,InSampleFiles)
+# '''
+# ========================================================================================
+# ========================================================================================
+# ========================================================================================'''
 
 #''' XXXXXXXXXXXXXXXXXXX 2008 XXXXXXXXXXXXXXXXXXXXXXX '''        
 #
@@ -1373,7 +1419,21 @@ def Sesonal2(DataIn,XIn, XLow, XHigh,SIn, SLow, SHigh):
 #                'Data_20081010_10_KO.csv',
 #                'Data_20081010_10_XRX.csv' ]
 #
-#ProcessLLOutPut(SkellamFiles,DNBFiles,OrdNFiles,OrdTFiles,OutSampleFiles)
+
+SkellamFiles=['2008_IBM_Sk_vLogLikeSkellam.csv',
+             '2008_KO_Sk_vLogLikeSkellam.csv']
+DNBFiles=['2008_IBM_DNB_vLogLikeDNB.csv',
+         '2008_KO_DNB_vLogLikeDNB.csv']
+OrdNFiles=['2008_IBM_OrdNormal_vLogLikeNormal.csv',
+         '2008_KO_OrdNormal_vLogLikeNormal.csv']
+OrdTFiles=['2008_IBM_OrdT_vLogLikeT.csv',
+         '2008_KO_OrdT_vLogLikeT.csv']          
+         
+OutSampleFiles=['Data_20081010_10_IBM_Bid.csv',
+               'Data_20081010_10_KO_Bid.csv']
+
+
+ProcessLLOutPut(SkellamFiles,DNBFiles,OrdNFiles,OrdTFiles,OutSampleFiles)
 #
 #
 #
@@ -1441,12 +1501,44 @@ def Sesonal2(DataIn,XIn, XLow, XHigh,SIn, SLow, SHigh):
 #                'Data_2008103_9_XRX.csv' ]
 #
 #
-#ProcessBICOutPut(SkellamFiles,DNBFiles,NormalFiles,TFiles,EstimatesSk, EstimatesDNB,EstimatesNormal, EstimatesT,InSampleFiles)
 
-''' XXXXXXXXXXXXXXXXXXX Sesonal XXXXXXXXXXXXXXXXXXXXXXX '''  
+#
+SkellamFiles=['2008_IBM_Sk_vInSkellamBIC.csv', 
+             '2008_KO_Sk_vInSkellamBIC.csv' ]
+DNBFiles=['2008_IBM_DNB_vInDNBBIC.csv',
+          '2008_KO_DNB_vInDNBBIC.csv']
+
+NormalFiles=['2008_IBM_OrdNormal_vInNormalBIC.csv',
+            '2008_KO_OrdNormal_vInNormalBIC.csv']
+TFiles=['2008_IBM_OrdT_vTBIC.csv',
+        '2008_KO_OrdT_vTBIC.csv']          
+         
+
+EstimatesSk=['2008_IBM_Sk_EstimationResults.csv',
+			'2008_KO_Sk_EstimationResults.csv']  
+EstimatesDNB=['2008_IBM_DNB_EstimationResults.csv', 
+			'2008_KO_DNB_EstimationResults.csv' ]         
+
+EstimatesNormal=['2008_IBM_OrdNormal_EstimationResults.csv',
+				 '2008_KO_OrdNormal_EstimationResults.csv']  
+
+EstimatesT=['2008_IBM_OrdT_EstimationResults.csv',
+			'2008_KO_OrdT_EstimationResults.csv' ]  
+
+InSampleFiles=['Data_2008103_9_IBM_Bid.csv', 
+               'Data_2008103_9_KO_Bid.csv']
+
+ProcessBICOutPut(SkellamFiles,DNBFiles,NormalFiles,TFiles,EstimatesSk, EstimatesDNB,EstimatesNormal, EstimatesT,InSampleFiles)
+
+#''' XXXXXXXXXXXXXXXXXXX Sesonal XXXXXXXXXXXXXXXXXXXXXXX '''  
 #Sesonal('Data_20100423_29_F.csv','2010_F_OrdT_vXEst.csv', '2010_F_OrdT_vSeasonEst.csv','2010_F_OrdT_vLogIntEst.csv')
 
 #Sesonal2('Data_20100423_29_IBM.csv','2010_IBM_OrdT_vXEst.csv','2010_IBM_OrdT_vXLow.csv','2010_IBM_OrdT_vXHigh.csv', '2010_IBM_OrdT_vSeasonEst.csv','2010_IBM_OrdT_vSLow.csv','2010_IBM_OrdT_vSHigh.csv')
 #Sesonal2('Data_2008103_9_IBM.csv','2008_IBM_DNB_vXEst.csv','2008_IBM_DNB_vXLow.csv','2008_IBM_DNB_vXHigh.csv', '2008_IBM_DNB_vSeasonEst.csv','2008_IBM_DNB_vSLow.csv','2008_IBM_DNB_vSHigh.csv')
+#Sesonal2('Data_20100423_29_KO_Bid.csv','2010_KO_DNB_vXEst.csv','2010_KO_DNB_vXLow.csv','2010_KO_DNB_vXHigh.csv', '2010_KO_DNB_vSeasonEst.csv','2010_KO_DNB_vSLow.csv','2010_KO_DNB_vSHigh.csv')
 #ProcessLLOutPut(['2010_IBM_Sk_vLogLikeSkellam.csv'],['2010_IBM_DNB_vLogLikeDNB.csv'], ['Data_20100430_30_IBM.csv'] )
 #ProcessBICOutPut(['2010_IBM_Sk_vInSkellamBIC.csv'],['2010_IBM_DNB_vInDNBBIC.csv'],['2010_IBM_Sk_EstimationResults.csv'], ['2010_IBM_DNB_EstimationResults.csv'],['Data_20100423_29_IBM.csv'])
+
+#Files = ['__DNB11_EstimationResults.csv']
+
+#ProcessMCMCOutPut(Files,1000)

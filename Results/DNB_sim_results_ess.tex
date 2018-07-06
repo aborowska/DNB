@@ -1,0 +1,22 @@
+{ \renewcommand{\arraystretch}{1.2} 
+\begin{table} 
+\center 
+\begin{tabular}{cc cccc ccc} 
+\toprule 
+Parameter && True  & Mean & Std & 95\% range && Mean IF & Std IF \\ \cline{1-1}  \cline{3-6} \cline{8-9}
+$\mu$   &&  -1.7000  &  -1.7180  &  (0.0457)  &  [-1.8083,-1.6287]  &&  177.2659  &  (60.5684)  \\  
+$\varphi$   &&  0.9700  &  0.9701  &  (0.0041)  &  [0.9614,0.9774]  &&  354.3270  &  (101.5417)  \\  
+$\sigma^2_{\eta}$   &&  0.0200  &  0.0200  &  (0.0032)  &  [0.0145,0.0270]  &&  552.3604  &  (153.5302)  \\  
+$\gamma$   &&  0.1000  &  0.0901  &  (0.0182)  &  [0.0526,0.1242]  &&  312.7835  &  (116.7197)  \\  
+$\beta_1$   &&  1.0652  &  1.0652  &  (0.0948)  &  [0.8790,1.2511]  &&  20.3728  &  (3.7064)  \\  
+$\beta_2$   &&  -0.8538  &  -0.8538  &  (0.0448)  &  [-0.9420,-0.7662]  &&  22.2124  &  (4.5653)  \\  
+$\nu$   &&  10.0000  &  9.7185  &  (2.3329)  &  [5.8333,14.8933]  &&  135.1976  &  (51.5453)  \\  
+\bottomrule 
+\end{tabular}
+ \caption{Posterior means, standard deviations (in parentheses), 
+ the 2.5\%--97.5\% quantile ranges (in brackets) and  the mean inefficiency factors (IF) and their standard deviations  averaged over MC $50$ replications, 
+ for $M=20,000$ posterior draws after a burn-in of $20,000$ 
+for $T=20,000$ observations  generated from the $\Delta$NB models.}
+\label{tab:sim_res} 
+\end{table}
+}

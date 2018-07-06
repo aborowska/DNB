@@ -7,16 +7,9 @@ using namespace std;
 #include "MCMC.h"
 #include "OutOfSample.h"
 
-
-
 int
 main (void)
 {
-
-
-
-
-
 	/* Parameters*/
 	vector<double> vSkellamParam;
 
@@ -24,7 +17,12 @@ main (void)
 	vSkellamParam.push_back(0.97);
 	vSkellamParam.push_back(0.02);
 	vSkellamParam.push_back(0.2);
-
+	
+// dMuTrue=vParam[0];
+// dPhiTrue=vParam[1];
+// dSigma2True=vParam[2];
+// dGammaTrue=vParam[3]; // Gamma is the zero-inflating parameter
+		
 	/* Initialize the MCMC class*/
 	MCMC SkellamMCMC(vSkellamParam);
 
@@ -43,10 +41,8 @@ main (void)
 ////	OutOfSample Skellam("EstimationResults.csv",20000, 80,"Sk","InNormalData.csv", "OutNormalData.csv");
 //
 //
-//
 //	Skellam.ForecastSkellam(5000);
 //	Skellam.GoodnessOfFitSkellam(1000);
-
 
 
 	/* Parameters*/
@@ -66,7 +62,6 @@ main (void)
 ////	DNBMCMC.ImportData("InNormalData.csv");
 //
 //
-//
 //	DNBMCMC.EstimateDNB(100000,20000);
 //
 //	DNBMCMC.ExportEstimationResults();
@@ -78,9 +73,4 @@ main (void)
 //
 ////	DNB.ForecastDNB(5000);
 ////	DNB.GoodnessOfFitDNB(1000);
-
-
 }
-
-
-

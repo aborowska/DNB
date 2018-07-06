@@ -1,0 +1,20 @@
+LD_LIBRARY_PATH=/home/aba228/gsl/lib
+
+export LD_LIBRARY_PATH
+
+g++ -o DNB_v6_pr MCMC.cpp CodeDynamicDNBInC_v2.cpp -I/home/aba228/gsl/include -lm -L/home/aba228/gsl/lib -lgsl -lgslcblas
+
+
+./DNB_v6_pr 20000 100000 20000 -1.7 0.97 0.02 0.001 15 2 |& tee DNB_v6_logfile.txt
+
+
+
+./OrdT_emp_pr 20000 100000 3 |& tee DNB_v3_logfile.txt
+
+g++ -o OrdT_emp_pr MCMC.cpp CodeOrderedNormal_empirical.cpp -I/home/aba228/gsl/include -lm -L/home/aba228/gsl/lib -lgsl -lgslcblas
+
+g++ -o OrdNorm_emp_pr MCMC.cpp CodeOrderedNormal_empirical.cpp -I/home/aba228/gsl/include -lm -L/home/aba228/gsl/lib -lgsl -lgslcblas
+
+
+
+./OrdNorm_emp_pr 20000 100000 3 |& tee OrdNorm_data3_logfile.txt
